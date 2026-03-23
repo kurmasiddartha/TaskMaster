@@ -1,23 +1,21 @@
 const mongoose = require('mongoose');
 const dns = require('node:dns');
 
-// Override DNS servers to fix "querySrv ECONNREFUSED" network issues
 dns.setServers(['8.8.8.8', '1.1.1.1']);
 
 const connectDB = async () => {
     try {
         if (!process.env.MONGO_URI) {
-            console.log('MongoDB connection skipped: MONGO_URI is not defined. (Add it to .env later for MongoDB Atlas)');
+            console.log('MongoDB connection skipped: MONGO_URI is not defined.');
             return;
         }
 
-        const conn = await mongoose.connect("mongodb+srv://taskmaster_user:taskmaster1234@cluster0.batjms1.mongodb.net/taskmasterNew?retryWrites=true&w=majority&appName=Cluster0");
+        const conn = await mongoose.connect(process.env.MONGO_URI);
+
         console.log(`MongoDB Connected: ${conn.connection.host}`);
     } catch (error) {
         console.error(`Error connecting to MongoDB: ${error.message}`);
-        // We won't exit the process here so the app can still run for demonstration
-        // process.exit(1);
     }
 };
 
-module.exports = connectDB
+module.exports = connectDB;
