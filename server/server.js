@@ -10,7 +10,7 @@ connectDB();
 
 // Start cron jobs
 startReminderScheduler();
-
+console.log("TaskMaster server is running on port 5000");
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
