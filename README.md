@@ -188,14 +188,6 @@ EMAIL_USER=your_email_address
 EMAIL_PASS=your_email_app_password
 ```
 
-Important security notes:
-
-- Never upload `.env` to GitHub.
-- Add `.env` to `.gitignore`.
-- Use strong secrets for `JWT_SECRET`.
-- Store production environment variables only inside Render, Vercel, or the hosting provider dashboard.
-- Do not expose `HF_API_KEY` in the frontend. Hugging Face requests must go through the backend.
-
 ## API Endpoints
 
 ### Auth
