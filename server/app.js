@@ -14,10 +14,6 @@ const aiRoutes = require('./routes/aiRoutes');
 const app = express();
 
 // Middleware
-<<<<<<< HEAD
-app.use(cors({
-  origin: 'http://localhost:5173',
-=======
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:5174',
@@ -43,7 +39,6 @@ app.use(cors({
       }
     }
   },
->>>>>>> 3f76ae5 (updated)
   credentials: true,
 }));
 app.use(express.json());
@@ -68,23 +63,8 @@ app.get('/api/health', (req, res) => {
   res.json({ message: 'TaskMaster API is running ✅' });
 });
 
-<<<<<<< HEAD
-// Serve frontend in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../client/dist')));
-
-  app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, '../client', 'dist', 'index.html'));
-  });
-} else {
-  app.get('/', (req, res) => {
-    res.send('API is running in development... Please use client port to view the app.');
-  });
-}
-=======
 app.get('/', (req, res) => {
   res.send('TaskMaster API is running...');
 });
->>>>>>> 3f76ae5 (updated)
 
 module.exports = app;
