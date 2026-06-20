@@ -1,4 +1,10 @@
 const nodemailer = require('nodemailer');
+const dns = require('node:dns');
+
+// Render instances often fail on IPv6 connections to Gmail. Force IPv4.
+if (dns.setDefaultResultOrder) {
+  dns.setDefaultResultOrder('ipv4first');
+}
 
 /**
  * Configure Nodemailer transporter based on environment variables
