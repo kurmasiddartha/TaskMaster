@@ -11,26 +11,23 @@ if (dns.setDefaultResultOrder) {
  * Expected variables: EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASS, EMAIL_FROM
  */
 const createTransporter = () => {
-  const host = process.env.EMAIL_HOST || 'smtp.mailtrap.io';
-  
-  if (host.includes('gmail.com')) {
-    return nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-  }
+  const user = process.env.EMAIL_USER;
+  const pass = process.env.EMAIL_PASS;
 
+  console.log(`[EMAIL] Creating transporter. EMAIL_USER set: ${!!user}, EMAIL_PASS set: ${!!pass}`);
+
+  // Use explicit SMTP host + port with family:4 to force IPv4.
+  // Render free-tier does NOT support outbound IPv6, so 'service: gmail'
+  // (which resolves its own DNS and may pick IPv6) will fail.
   return nodemailer.createTransport({
-    host: host,
-    port: parseInt(process.env.EMAIL_PORT) || 2525,
-    secure: process.env.EMAIL_PORT == 465,
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
+    family: 4,           // ← forces IPv4 socket
+    auth: { user, pass },
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
   });
 };
 
