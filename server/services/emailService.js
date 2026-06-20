@@ -90,12 +90,18 @@ const sendOTPEmail = async (to, name, otp, purpose = 'signup') => {
     </html>
   `;
 
-  await transporter.sendMail({
-    from: process.env.EMAIL_FROM || '"TaskMaster" <no-reply@taskmaster.app>',
-    to,
-    subject,
-    html,
-  });
+  try {
+    const info = await transporter.sendMail({
+      from: process.env.EMAIL_FROM || '"TaskMaster" <no-reply@taskmaster.app>',
+      to,
+      subject,
+      html,
+    });
+    console.log(`✅ Email sent successfully to ${to}. Message ID: ${info.messageId}`);
+  } catch (error) {
+    console.error(`❌ Failed to send email to ${to}:`, error);
+    throw error;
+  }
 };
 
 module.exports = {
