@@ -1,54 +1,23 @@
-const nodemailer = require('nodemailer');
-const dns = require('node:dns');
-
-// Render instances often fail on IPv6 connections to Gmail. Force IPv4.
-if (dns.setDefaultResultOrder) {
-  dns.setDefaultResultOrder('ipv4first');
-}
+const { Resend } = require('resend');
 
 /**
- * Configure Nodemailer transporter based on environment variables
- * Expected variables: EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASS, EMAIL_FROM
- */
-const createTransporter = () => {
-  const user = process.env.EMAIL_USER;
-  const pass = process.env.EMAIL_PASS;
-
-  console.log(`[EMAIL] Creating transporter. EMAIL_USER set: ${!!user}, EMAIL_PASS set: ${!!pass}`);
-
-  // Use explicit SMTP host + port with family:4 to force IPv4.
-  // Render free-tier does NOT support outbound IPv6, so 'service: gmail'
-  // (which resolves its own DNS and may pick IPv6) will fail.
-  return nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
-    family: 4,           // ← forces IPv4 socket
-    auth: { user, pass },
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
-    socketTimeout: 15000,
-  });
-};
-
-/**
- * Send an OTP code to a user's email
- * @param {string} to 
- * @param {string} name 
- * @param {string} otp 
- * @param {string} purpose - 'signup' or 'login'
+ * Send an OTP code to a user's email using Resend HTTP API.
+ * Resend works over HTTPS so it bypasses Render's SMTP port blocking.
+ *
+ * Required env var: RESEND_API_KEY
+ * Optional env var: EMAIL_FROM (defaults to Resend's test address)
  */
 const sendOTPEmail = async (to, name, otp, purpose = 'signup') => {
-  const transporter = createTransporter();
-  
+  const resend = new Resend(process.env.RESEND_API_KEY);
+
   const isSignup = purpose === 'signup';
-  const subject = isSignup 
-    ? '✨ TaskMaster: Verify your email address' 
+  const subject = isSignup
+    ? '✨ TaskMaster: Verify your email address'
     : '🛡️ TaskMaster: Your login verification code';
-  
+
   const title = isSignup ? 'Welcome to TaskMaster!' : 'Security Verification';
-  const actionText = isSignup 
-    ? 'To complete your registration, please use the following verification code:' 
+  const actionText = isSignup
+    ? 'To complete your registration, please use the following verification code:'
     : 'A login attempt was made using your credentials. Please enter the following code to continue:';
 
   const html = `
@@ -93,17 +62,26 @@ const sendOTPEmail = async (to, name, otp, purpose = 'signup') => {
     </html>
   `;
 
+  // Resend's test domain lets you send to your own email without domain verification
+  const from = process.env.EMAIL_FROM || 'TaskMaster <onboarding@resend.dev>';
+
   try {
-    const info = await transporter.sendMail({
-      from: process.env.EMAIL_FROM || '"TaskMaster" <no-reply@taskmaster.app>',
-      to,
+    const { data, error } = await resend.emails.send({
+      from,
+      to: [to],
       subject,
       html,
     });
-    console.log(`✅ Email sent successfully to ${to}. Message ID: ${info.messageId}`);
-  } catch (error) {
-    console.error(`❌ Failed to send email to ${to}:`, error);
-    throw error;
+
+    if (error) {
+      console.error(`❌ Resend API error for ${to}:`, error);
+      throw new Error(error.message);
+    }
+
+    console.log(`✅ Email sent successfully to ${to}. Resend ID: ${data.id}`);
+  } catch (err) {
+    console.error(`❌ Failed to send email to ${to}:`, err);
+    throw err;
   }
 };
 
