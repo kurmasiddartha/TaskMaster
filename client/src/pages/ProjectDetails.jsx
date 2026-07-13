@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
@@ -28,12 +28,20 @@ function ProjectDetails() {
   useEffect(() => {
     if (!socket || !id) return;
 
-    // Join this project's room
-    socket.emit('join-project', id);
+    const joinRoom = () => {
+      socket.emit('join-project', id);
+    };
+
+    // If already connected, join now. Otherwise wait for the connect event.
+    if (socket.connected) {
+      joinRoom();
+    }
+    // Also re-join whenever the socket (re)connects — handles the race condition
+    // where the socket wasn't yet connected when this effect first ran.
+    socket.on('connect', joinRoom);
 
     const onTaskCreated = (newTask) => {
       setTasks((prev) => {
-        // Avoid duplicates (e.g. the creator already has it via optimistic update)
         if (prev.some((t) => t._id === newTask._id)) return prev;
         return [...prev, newTask];
       });
@@ -69,6 +77,7 @@ function ProjectDetails() {
 
     return () => {
       socket.emit('leave-project', id);
+      socket.off('connect',        joinRoom);
       socket.off('task:created',   onTaskCreated);
       socket.off('task:updated',   onTaskUpdated);
       socket.off('task:deleted',   onTaskDeleted);

@@ -5,17 +5,41 @@ import { useAuth } from './AuthContext';
 const SocketContext = createContext(socket);
 
 export const SocketProvider = ({ children }) => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
 
   useEffect(() => {
+    // Don't act until auth has finished resolving from localStorage
+    if (loading) return;
+
     if (user) {
-      // Connect when the user is logged in
-      if (!socket.connected) socket.connect();
+      if (!socket.connected) {
+        console.log('[Socket] Connecting...');
+        socket.connect();
+      }
     } else {
-      // Disconnect when logged out
-      if (socket.connected) socket.disconnect();
+      if (socket.connected) {
+        console.log('[Socket] Disconnecting (logged out)');
+        socket.disconnect();
+      }
     }
-  }, [user]);
+  }, [user, loading]);
+
+  // Debug: log connection events once at module level
+  useEffect(() => {
+    const onConnect    = () => console.log('[Socket] ✅ Connected:', socket.id);
+    const onDisconnect = (reason) => console.log('[Socket] ❌ Disconnected:', reason);
+    const onError      = (err)    => console.error('[Socket] Error:', err);
+
+    socket.on('connect',           onConnect);
+    socket.on('disconnect',        onDisconnect);
+    socket.on('connect_error',     onError);
+
+    return () => {
+      socket.off('connect',        onConnect);
+      socket.off('disconnect',     onDisconnect);
+      socket.off('connect_error',  onError);
+    };
+  }, []);
 
   return (
     <SocketContext.Provider value={socket}>
@@ -25,3 +49,4 @@ export const SocketProvider = ({ children }) => {
 };
 
 export const useSocket = () => useContext(SocketContext);
+
