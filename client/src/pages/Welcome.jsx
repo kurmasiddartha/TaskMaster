@@ -195,7 +195,7 @@ const Welcome = () => {
 
         <div className="footer-bottom">
           <div className="footer-bottom-left">
-            © {new Date().getFullYear()} TaskMaster. Designed with premium HSL glassmorphism. All rights reserved.
+            © {new Date().getFullYear()} TaskMaster. A collaborative task management system. All rights reserved.
           </div>
           <div className="footer-bottom-right">
             <a href="#privacy" className="footer-bottom-link">Privacy Policy</a>

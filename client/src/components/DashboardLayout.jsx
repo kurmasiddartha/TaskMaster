@@ -88,7 +88,7 @@ const DashboardLayout = ({ children }) => {
               <div className="footer-left">
                 <span className="footer-logo">✓</span>
                 <span className="footer-copyright">
-                  © {new Date().getFullYear()} <strong>TaskMaster</strong>. Workspace active & secure.
+                  © {new Date().getFullYear()} <strong>TaskMaster</strong>. A collaborative task management system.
                 </span>
               </div>
               <div className="footer-links">
