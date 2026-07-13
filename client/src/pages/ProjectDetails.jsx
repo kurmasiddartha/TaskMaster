@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useSocket } from '../context/SocketContext';
 import { getProjectById } from '../api/projectService';
 import { getTasksByProject, createTask, updateTask, deleteTask, reorderTasks, downloadTaskAttachment, submitForReview, approveTask, rejectTask } from '../api/taskService';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
@@ -12,6 +13,7 @@ import DashboardLayout from '../components/DashboardLayout';
 function ProjectDetails() {
   const { id } = useParams();
   const { user } = useAuth();
+  const socket = useSocket();
   const [project, setProject] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,6 +23,59 @@ function ProjectDetails() {
   useEffect(() => {
     loadProjectAndTasks();
   }, [id]);
+
+  // ── Socket.io real-time listeners ──────────────────────────────────────────
+  useEffect(() => {
+    if (!socket || !id) return;
+
+    // Join this project's room
+    socket.emit('join-project', id);
+
+    const onTaskCreated = (newTask) => {
+      setTasks((prev) => {
+        // Avoid duplicates (e.g. the creator already has it via optimistic update)
+        if (prev.some((t) => t._id === newTask._id)) return prev;
+        return [...prev, newTask];
+      });
+    };
+
+    const onTaskUpdated = (updatedTask) => {
+      setTasks((prev) =>
+        prev.map((t) => (t._id === updatedTask._id ? updatedTask : t))
+      );
+    };
+
+    const onTaskDeleted = ({ _id }) => {
+      setTasks((prev) => prev.filter((t) => t._id !== _id));
+    };
+
+    const onTaskReordered = ({ items }) => {
+      setTasks((prev) => {
+        const updated = [...prev];
+        items.forEach(({ id: itemId, order, status }) => {
+          const idx = updated.findIndex((t) => t._id === itemId);
+          if (idx !== -1) {
+            updated[idx] = { ...updated[idx], order, status };
+          }
+        });
+        return updated;
+      });
+    };
+
+    socket.on('task:created',   onTaskCreated);
+    socket.on('task:updated',   onTaskUpdated);
+    socket.on('task:deleted',   onTaskDeleted);
+    socket.on('task:reordered', onTaskReordered);
+
+    return () => {
+      socket.emit('leave-project', id);
+      socket.off('task:created',   onTaskCreated);
+      socket.off('task:updated',   onTaskUpdated);
+      socket.off('task:deleted',   onTaskDeleted);
+      socket.off('task:reordered', onTaskReordered);
+    };
+  }, [socket, id]);
+  // ──────────────────────────────────────────────────────────────────────────
 
   const loadProjectAndTasks = async () => {
     try {

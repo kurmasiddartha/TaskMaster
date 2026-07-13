@@ -5,6 +5,12 @@ const Notification = require('../models/Notification');
 const Reminder = require('../models/Reminder');
 const path = require('path');
 const fs = require('fs');
+const socketModule = require('../socket');
+
+// Safe helper — won't throw if io isn't ready yet
+const emit = (room, event, data) => {
+  try { socketModule.getIO().to(room).emit(event, data); } catch (_) {}
+};
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -115,7 +121,14 @@ const createTask = async (req, res) => {
       await Notification.create({ userId: assignedTo, message: msg, link: `/projects/${projectId}` });
     }
 
-    res.status(201).json(task);
+    // Real-time: broadcast new task to everyone in this project room
+    const populated = await task.populate([
+      { path: 'assignedTo', select: 'name email' },
+      { path: 'createdBy',  select: 'name email' },
+    ]);
+    emit(`project:${projectId}`, 'task:created', populated);
+
+    res.status(201).json(populated);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -217,6 +230,9 @@ const updateTask = async (req, res) => {
       await Reminder.updateMany({ taskId: updatedTask._id }, { status: 'cancelled' });
     }
 
+    // Real-time: broadcast updated task to project room
+    emit(`project:${task.projectId}`, 'task:updated', updatedTask);
+
     res.json(updatedTask);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -241,7 +257,13 @@ const deleteTask = async (req, res) => {
     }
 
     await Reminder.deleteMany({ taskId: task._id });
+    const projectId = task.projectId;
+    const taskId = task._id;
     await task.deleteOne();
+
+    // Real-time: tell everyone in the project room to remove this task
+    emit(`project:${projectId}`, 'task:deleted', { _id: taskId });
+
     res.json({ message: 'Task removed' });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -305,6 +327,8 @@ const reorderTasks = async (req, res) => {
 
     if (sampleTask) {
       await ActivityLog.create({ action: 'BOARD_REORDERED', userId: req.user._id, projectId: sampleTask.projectId, details: 'Reordered tasks on the board' });
+      // Real-time: broadcast the reorder payload so other clients can update order/status optimistically
+      emit(`project:${sampleTask.projectId}`, 'task:reordered', { items });
     }
 
     res.json({ message: 'Tasks reordered successfully' });
@@ -357,6 +381,8 @@ const submitForReview = async (req, res) => {
     ];
     await notify(adminIds, `📋 "${task.title}" has been submitted for review by ${req.user.name}`, `/projects/${task.projectId}`, req.user._id);
 
+    emit(`project:${task.projectId}`, 'task:updated', updated);
+
     res.json(updated);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -403,6 +429,8 @@ const approveTask = async (req, res) => {
       });
     }
 
+    emit(`project:${task.projectId}`, 'task:updated', updated);
+
     res.json(updated);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -448,6 +476,8 @@ const rejectTask = async (req, res) => {
         link: `/projects/${task.projectId}`,
       });
     }
+
+    emit(`project:${task.projectId}`, 'task:updated', updated);
 
     res.json(updated);
   } catch (error) {
