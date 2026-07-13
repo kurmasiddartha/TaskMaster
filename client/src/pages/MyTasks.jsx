@@ -87,7 +87,7 @@ function MyTasks() {
           <p>You don&apos;t have any tasks assigned to you right now.</p>
         </section>
       ) : (
-        <div className="flex flex-col xl:flex-row gap-6 h-full pb-8 overflow-x-auto">
+        <div className="flex flex-col xl:flex-row gap-6 pb-8 overflow-x-auto">
           {['todo', 'in-progress', 'pending_review', 'done'].map((status) => (
             <div key={status} className="flex-1 min-w-[300px] rounded-xl bg-[var(--bg-secondary)] border border-[var(--border)] p-4 min-h-[500px] flex flex-col">
               <style>{`select option { background: var(--bg-card); color: var(--text-primary); }`}</style>

@@ -284,7 +284,7 @@ function ProjectDetails() {
 
       {/* Kanban Board using dnd-kit */}
       <DragDropContext onDragEnd={onDragEnd}>
-        <div className="flex flex-col xl:flex-row gap-6 h-full pb-8 overflow-x-auto">
+        <div className="flex flex-col xl:flex-row gap-6 pb-8 overflow-x-auto">
           {['todo', 'in-progress', 'pending_review', 'done'].map((status) => (
             <div key={status} className="flex-1 min-w-[300px] flex flex-col h-full min-h-[500px]">
               <div className="font-bold text-sm mb-4 text-[var(--text-primary)] uppercase tracking-wide flex justify-between items-center px-1">

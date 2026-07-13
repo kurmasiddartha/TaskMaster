@@ -61,7 +61,7 @@ const DashboardLayout = ({ children }) => {
       </aside>
 
       {/* Main Content */}
-      <main className="dashboard-main flex flex-col h-screen">
+      <main className="dashboard-main flex flex-col">
         {/* Top bar */}
         <header className="dashboard-header shrink-0">
           <div>
@@ -79,7 +79,7 @@ const DashboardLayout = ({ children }) => {
         </header>
 
         {/* Page Content */}
-        <div className="flex-1 overflow-y-auto w-full flex flex-col justify-between">
+        <div className="flex-1 w-full flex flex-col justify-between">
           <div className="flex-1">
             {children}
           </div>
