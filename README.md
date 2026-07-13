@@ -1,10 +1,10 @@
-# TaskMaster - AI-Powered Task Management Platform
+# TaskMaster - Collaborative Task Management Platform
 
-TaskMaster is a full-stack MERN platform designed for students and teams to manage projects and tasks efficiently. Users can register with OTP verification, create projects, invite team members, assign and track tasks with priorities and deadlines, upload file attachments, submit tasks for review, receive notifications, view analytics, and get AI-powered assistance through an integrated chat assistant using the Hugging Face API.
+TaskMaster is a full-stack MERN platform designed for students and teams to manage projects and tasks efficiently. Users can register, create projects, invite team members, assign and track tasks with priorities and deadlines, upload file attachments, submit tasks for review, receive notifications, and view analytics.
 
 ## Features
 
-- JWT-based authentication with email OTP verification
+- JWT-based authentication
 - Secure password hashing with bcrypt
 - User profile management with avatar upload and password change
 - Project creation with team member management (add and remove members)
@@ -14,8 +14,6 @@ TaskMaster is a full-stack MERN platform designed for students and teams to mana
 - In-app notification system with mark as read
 - Dashboard analytics with task statistics
 - Activity timeline per project
-- AI-powered chat assistant using Hugging Face API
-- Email notifications via Nodemailer
 - Reminder scheduler for upcoming deadlines
 - User settings and preferences
 - Responsive React frontend with vanilla CSS
@@ -40,14 +38,8 @@ TaskMaster is a full-stack MERN platform designed for students and teams to mana
 - JWT
 - bcryptjs
 - Multer (file uploads)
-- Nodemailer
 - dotenv
 - CORS
-
-### AI
-
-- Hugging Face Inference API
-- Model: mistralai/Mistral-7B-Instruct-v0.2
 
 ## Folder Structure
 
@@ -58,7 +50,6 @@ TaskMaster/
       db.js
     controllers/
       activityController.js
-      aiController.js
       analyticsController.js
       authController.js
       notificationController.js
@@ -78,7 +69,6 @@ TaskMaster/
       User.js
     routes/
       activityRoutes.js
-      aiRoutes.js
       analyticsRoutes.js
       authRoutes.js
       notificationRoutes.js
@@ -87,9 +77,6 @@ TaskMaster/
       taskRoutes.js
       userRoutes.js
     services/
-      aiService.js
-      emailService.js
-      otpService.js
       reminderScheduler.js
     uploads/
     app.js
@@ -102,10 +89,6 @@ TaskMaster/
       api/
         axios.js
       components/
-        ai/
-          AIAssistant.jsx
-          ChatMessage.jsx
-          TypingIndicator.jsx
         ActivityTimeline.jsx
         CreateProjectModal.jsx
         CreateTaskModal.jsx
@@ -115,8 +98,6 @@ TaskMaster/
         ProtectedRoute.jsx
       context/
         AuthContext.jsx
-      hooks/
-        useAIChat.js
       pages/
         Dashboard.jsx
         Login.jsx
@@ -126,18 +107,15 @@ TaskMaster/
         Projects.jsx
         Register.jsx
         Settings.jsx
-        VerifyOTP.jsx
         Welcome.jsx
       services/
         activityService.js
         analyticsService.js
-        aiApi.js
         axios.js
         notificationService.js
         projectService.js
         taskService.js
       styles/
-        aiAssistant.css
         welcome.css
       App.jsx
       main.jsx
@@ -183,9 +161,6 @@ Create a `.env` file inside the `server` folder.
 PORT=5000
 MONGO_URI=your_mongodb_atlas_connection_string
 JWT_SECRET=your_jwt_secret
-HF_API_KEY=your_hugging_face_api_key
-EMAIL_USER=your_email_address
-EMAIL_PASS=your_email_app_password
 ```
 
 ## API Endpoints
@@ -195,8 +170,6 @@ EMAIL_PASS=your_email_app_password
 ```
 POST /api/auth/register
 POST /api/auth/login
-POST /api/auth/verify-otp
-POST /api/auth/resend-otp
 GET  /api/auth/me
 ```
 
@@ -260,18 +233,6 @@ PUT /api/users/change-password
 GET /api/settings
 PUT /api/settings
 ```
-
-### AI
-
-```
-POST /api/ai/chat
-```
-
-## AI Integration
-
-TaskMaster uses the Hugging Face Inference API from the backend. The AI assistant helps students with coding questions, debugging, project guidance, and academic support. Users can chat with the assistant directly from the dashboard sidebar.
-
-The backend sends the user message to Hugging Face and returns the AI response. If the Hugging Face API is unavailable, the backend returns a fallback error message so the app remains functional.
 
 ## Task Review Workflow
 
