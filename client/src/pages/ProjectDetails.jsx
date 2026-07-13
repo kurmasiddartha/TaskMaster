@@ -7,7 +7,7 @@ import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import CreateTaskModal from '../components/CreateTaskModal';
 import ManageMembersModal from '../components/ManageMembersModal';
 import DashboardLayout from '../components/DashboardLayout';
-import ActivityTimeline from '../components/ActivityTimeline';
+
 
 function ProjectDetails() {
   const { id } = useParams();
@@ -438,7 +438,7 @@ function ProjectDetails() {
         </div>
       </DragDropContext>
 
-      <ActivityTimeline projectId={id} />
+
 
       {isTaskModalOpen && (
         <CreateTaskModal
