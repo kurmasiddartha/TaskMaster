@@ -9,7 +9,6 @@ const notificationRoutes = require('./routes/notificationRoutes');
 const activityRoutes = require('./routes/activityRoutes');
 const userRoutes = require('./routes/userRoutes');
 const settingRoutes = require('./routes/settingRoutes');
-const aiRoutes = require('./routes/aiRoutes');
 
 const app = express();
 
@@ -56,7 +55,6 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/activities', activityRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/settings', settingRoutes);
-app.use('/api/ai', aiRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

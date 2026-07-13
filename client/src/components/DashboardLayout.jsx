@@ -48,13 +48,6 @@ const DashboardLayout = ({ children }) => {
             Projects
           </Link>
           <Link 
-            to="/ai-assistant" 
-            className={`nav-item ${location.pathname === '/ai-assistant' ? 'active' : ''}`}
-          >
-            <span className="nav-icon">✨</span>
-            AI Assistant
-          </Link>
-          <Link 
             to="/settings" 
             className={`nav-item ${location.pathname === '/settings' ? 'active' : ''}`}
           >

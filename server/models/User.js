@@ -32,49 +32,11 @@ const userSchema = new mongoose.Schema(
       default: 'user',
     },
     preferences: {
-      notifications: {
-        email: { type: Boolean, default: true },
-        inApp: { type: Boolean, default: true },
-        taskAssignment: { type: Boolean, default: true },
-        taskStatus: { type: Boolean, default: true },
-        comments: { type: Boolean, default: true },
-      },
-      reminders: {
-        enabled: { type: Boolean, default: true },
-        defaultOffset: { 
-          type: String, 
-          enum: ['due_time', '10_min_before', '30_min_before', '1_hour_before', '1_day_before'],
-          default: '10_min_before'
-        },
-      },
       appearance: {
         theme: { type: String, enum: ['system', 'light', 'dark'], default: 'system' },
       }
     },
-    // OTP Verification Fields
-    isVerified: {
-      type: Boolean,
-      default: false,
-    },
-    otpHash: {
-      type: String,
-      select: false,
-    },
-    otpExpiresAt: {
-      type: Date,
-      select: false,
-    },
-    otpAttempts: {
-      type: Number,
-      default: 0,
-      select: false,
-    },
-    otpPurpose: {
-      type: String,
-      enum: ['signup', 'login', 'null'],
-      default: 'null',
-      select: false,
-    }
+
   },
   {
     timestamps: true,

@@ -1,44 +1,19 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { 
-  CheckCircle2, 
   ArrowRight, 
   Users, 
-  Bot, 
   BarChart3, 
   Lock, 
   Github, 
   Twitter, 
   Linkedin, 
-  ExternalLink,
-  Sparkles,
-  Shield,
-  Layers
+  Sparkles
 } from 'lucide-react';
 import '../styles/welcome.css';
 
 const Welcome = () => {
   const { user } = useAuth();
-
-  // Interactive Task Preview State
-  const [tasks, setTasks] = useState([
-    { id: 1, title: 'Review Database Schema Design', status: 'progress', category: 'Backend' },
-    { id: 2, title: 'Integrate Qwen Coder AI Assist Route', status: 'todo', category: 'AI integration' },
-    { id: 3, title: 'Write unit tests for authentication flow', status: 'done', category: 'Testing' },
-  ]);
-
-  const toggleTaskStatus = (id) => {
-    setTasks(tasks.map(task => {
-      if (task.id === id) {
-        let newStatus = 'todo';
-        if (task.status === 'todo') newStatus = 'progress';
-        else if (task.status === 'progress') newStatus = 'done';
-        return { ...task, status: newStatus };
-      }
-      return task;
-    }));
-  };
 
   return (
     <div className="welcome-page">
@@ -82,7 +57,7 @@ const Welcome = () => {
         
         <p className="hero-subtitle">
           An ultra-premium, context-aware academic task management system designed to elevate student work. 
-          Manage assignments, sync group projects, and clear your coding doubts with built-in AI intelligence.
+          Manage assignments, sync group projects, and succeed together.
         </p>
 
         <div className="hero-actions">
@@ -101,86 +76,6 @@ const Welcome = () => {
             </>
           )}
         </div>
-
-        {/* Interactive Mockup Dashboard */}
-        <div className="welcome-preview-container">
-          <div className="preview-bar">
-            <div className="preview-dots">
-              <span className="preview-dot"></span>
-              <span className="preview-dot"></span>
-              <span className="preview-dot"></span>
-            </div>
-            <div className="preview-title">TaskMaster Interactive Preview</div>
-            <div style={{ width: 42 }}></div>
-          </div>
-          
-          <div className="preview-content">
-            {/* Left Column: Interactive Tasks */}
-            <div className="preview-left">
-              <div className="preview-widget">
-                <h4>
-                  <CheckCircle2 size={16} color="var(--accent)" /> Active Sprint
-                </h4>
-                <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '12px' }}>
-                  Click items below to toggle status & interact in real time:
-                </p>
-                <div className="preview-tasks-list">
-                  {tasks.map(task => (
-                    <div 
-                      key={task.id} 
-                      className={`preview-task-item ${task.status === 'done' ? 'completed' : ''}`}
-                      onClick={() => toggleTaskStatus(task.id)}
-                    >
-                      <div>
-                        <span className="preview-task-title">{task.title}</span>
-                        <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '2px' }}>
-                          {task.category}
-                        </div>
-                      </div>
-                      <span className={`preview-task-status status-${task.status}`}>
-                        {task.status === 'todo' && 'Todo'}
-                        {task.status === 'progress' && 'In Progress'}
-                        {task.status === 'done' && 'Completed'}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Right Column: AI Tutor Chat */}
-            <div className="preview-right">
-              <div className="preview-ai-chat">
-                <div className="ai-chat-header">
-                  <Bot size={16} color="var(--accent-light)" />
-                  <span style={{ fontSize: '13px', fontWeight: 600 }}>TaskMaster Assistant</span>
-                  <span style={{ fontSize: '10px', color: 'var(--success)', marginLeft: 'auto' }}>● Online</span>
-                </div>
-                <div className="ai-chat-messages">
-                  <div className="chat-bubble user">
-                    How do I implement a secure binary search in Python?
-                  </div>
-                  <div className="chat-bubble assistant">
-                    Here is a quick, safe implementation:
-                    <pre style={{ margin: '8px 0 0', padding: '6px', background: 'rgba(0,0,0,0.2)', borderRadius: '4px', fontSize: '11px', overflowX: 'auto' }}>
-{`def binary_search(arr, target):
-  low, high = 0, len(arr) - 1
-  while low <= high:
-    mid = (low + high) // 2
-    if arr[mid] == target:
-      return mid
-    elif arr[mid] < target:
-      low = mid + 1
-    else:
-      high = mid - 1
-  return -1`}
-                    </pre>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </section>
 
       {/* Feature Catalog Grid */}
@@ -194,17 +89,6 @@ const Welcome = () => {
           {/* Card 1 */}
           <div className="feature-card">
             <div className="feature-icon-wrapper">
-              <Bot size={22} />
-            </div>
-            <h3 className="feature-title">AI Coding Copilot</h3>
-            <p className="feature-description">
-              Get immediate answers, clean code samples, and step-by-step debug guides powered by Hugging Face's Qwen Coder AI model.
-            </p>
-          </div>
-
-          {/* Card 2 */}
-          <div className="feature-card">
-            <div className="feature-icon-wrapper">
               <Users size={22} />
             </div>
             <h3 className="feature-title">Real-Time Team Sync</h3>
@@ -213,7 +97,7 @@ const Welcome = () => {
             </p>
           </div>
 
-          {/* Card 3 */}
+          {/* Card 2 */}
           <div className="feature-card">
             <div className="feature-icon-wrapper">
               <BarChart3 size={22} />
@@ -224,14 +108,14 @@ const Welcome = () => {
             </p>
           </div>
 
-          {/* Card 4 */}
+          {/* Card 3 */}
           <div className="feature-card">
             <div className="feature-icon-wrapper">
               <Lock size={22} />
             </div>
             <h3 className="feature-title">Secure Workspace</h3>
             <p className="feature-description">
-              Dual-factor JWT and secure OTP authentication keep academic resources shielded from external unauthorized visitors.
+              Industry-standard JWT authentication keeps academic resources shielded from external unauthorized visitors.
             </p>
           </div>
         </div>
@@ -243,10 +127,6 @@ const Welcome = () => {
           <div className="welcome-stat-item">
             <h3>99.9%</h3>
             <p>Uptime & Availability</p>
-          </div>
-          <div className="welcome-stat-item">
-            <h3>&lt; 1.5s</h3>
-            <p>AI Copilot Response Latency</p>
           </div>
           <div className="welcome-stat-item">
             <h3>256-bit</h3>
@@ -268,7 +148,7 @@ const Welcome = () => {
               <span className="logo-text">TaskMaster</span>
             </div>
             <p className="footer-desc">
-              Organize projects, streamline student assignments, and accelerate academic learning with AI assistance.
+              Organize projects, streamline student assignments, and accelerate academic learning.
             </p>
             <div className="footer-socials">
               <a href="https://github.com" className="social-icon" target="_blank" rel="noopener noreferrer">
@@ -288,7 +168,6 @@ const Welcome = () => {
             <ul className="footer-ul">
               <li><Link to="/login" className="footer-ul-link">Dashboard</Link></li>
               <li><Link to="/register" className="footer-ul-link">Sign Up</Link></li>
-              <li><Link to="/login" className="footer-ul-link">AI Tutor Assist</Link></li>
               <li><Link to="/login" className="footer-ul-link">Team Board</Link></li>
             </ul>
           </div>

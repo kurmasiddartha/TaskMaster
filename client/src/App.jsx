@@ -10,8 +10,6 @@ import ProjectDetails from './pages/ProjectDetails';
 import MyTasks from './pages/MyTasks';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
-import VerifyOTP from './pages/VerifyOTP';
-import AIAssistant from './components/ai/AIAssistant';
 
 function App() {
   return (
@@ -21,7 +19,6 @@ function App() {
           <Route path="/" element={<Welcome />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/verify-otp" element={<VerifyOTP />} />
           <Route
             path="/dashboard"
             element={
@@ -67,14 +64,6 @@ function App() {
             element={
               <ProtectedRoute>
                 <Settings />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/ai-assistant"
-            element={
-              <ProtectedRoute>
-                <AIAssistant />
               </ProtectedRoute>
             }
           />

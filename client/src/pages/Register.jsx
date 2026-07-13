@@ -23,11 +23,7 @@ const Register = () => {
     setLoading(true);
     try {
       const data = await register(formData.name, formData.email, formData.password);
-      
-      if (data.message === 'OTP_SENT_SIGNUP') {
-        navigate('/verify-otp', { state: { email: formData.email, purpose: 'signup' } });
-      } else {
-        // Direct signup success (for backward compatibility if needed)
+      if (data.token) {
         navigate('/dashboard');
       }
     } catch (err) {

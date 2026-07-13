@@ -3,19 +3,9 @@ import api from '../api/axios';
 import DashboardLayout from '../components/DashboardLayout';
 import { useAuth } from '../context/AuthContext';
 
-const NOTIFICATION_KEYS = [
-  { key: 'email',          icon: '📧', label: 'Email',           desc: 'Receive notifications via email' },
-  { key: 'inApp',          icon: '🔔', label: 'In App',          desc: 'Receive in-app notification alerts' },
-  { key: 'taskAssignment', icon: '👤', label: 'Task Assignment',  desc: 'When a task is assigned to you' },
-  { key: 'taskStatus',     icon: '📋', label: 'Task Status',      desc: 'When task status changes' },
-  { key: 'comments',       icon: '💬', label: 'Comments',         desc: 'When someone comments on a task' },
-];
-
 const Settings = () => {
   const { updateTheme } = useAuth();
   const [preferences, setPreferences] = useState({
-    notifications: { email: true, inApp: true, taskAssignment: true, taskStatus: true, comments: true },
-    reminders: { enabled: true, defaultOffset: '10_min_before' },
     appearance: { theme: '' },
   });
 
@@ -29,8 +19,6 @@ const Settings = () => {
       try {
         const { data } = await api.get('/api/settings');
         setPreferences(prev => ({
-          notifications: { ...prev.notifications, ...(data.notifications || {}) },
-          reminders:     { ...prev.reminders,     ...(data.reminders || {}) },
           appearance:    { ...prev.appearance,    ...(data.appearance || {}) },
         }));
       } catch (error) {
@@ -49,8 +37,6 @@ const Settings = () => {
     try {
       const { data } = await api.put('/api/settings', preferences);
       setPreferences(prev => ({
-        notifications: { ...prev.notifications, ...(data.notifications || {}) },
-        reminders:     { ...prev.reminders,     ...(data.reminders || {}) },
         appearance:    { ...prev.appearance,    ...(data.appearance || {}) },
       }));
       setMessage({ text: '✅ Preferences saved successfully!', type: 'success' });
@@ -61,15 +47,6 @@ const Settings = () => {
       setSaving(false);
     }
   };
-
-  const toggleNotification = (field) =>
-    setPreferences(prev => ({ ...prev, notifications: { ...prev.notifications, [field]: !prev.notifications[field] } }));
-
-  const toggleReminder = () =>
-    setPreferences(prev => ({ ...prev, reminders: { ...prev.reminders, enabled: !prev.reminders.enabled } }));
-
-  const changeReminderOffset = (e) =>
-    setPreferences(prev => ({ ...prev, reminders: { ...prev.reminders, defaultOffset: e.target.value } }));
 
   const changeTheme = (newTheme) => {
     updateTheme(newTheme);
@@ -128,92 +105,7 @@ const Settings = () => {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
-          {/* ── A. Notifications ── */}
-          <section style={S.card}>
-            <div style={S.sectionHeader('#7c5cff')}>
-              <div style={{ ...S.sectionIcon, background: 'linear-gradient(135deg, #7c5cff, #9e85ff)', boxShadow: '0 6px 18px rgba(124,92,255,0.35)' }}>🔔</div>
-              <div>
-                <h2 style={S.sectionTitle}>Notifications</h2>
-                <p style={S.sectionSub}>Control which events trigger a notification</p>
-              </div>
-            </div>
-
-            <div style={{ padding: '8px 0' }}>
-              {NOTIFICATION_KEYS.map((item, idx) => (
-                <div key={item.key} style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  padding: '14px 24px',
-                  borderBottom: idx < NOTIFICATION_KEYS.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
-                  transition: 'background 0.15s',
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                    <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'var(--bg-hover)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }}>
-                      {item.icon}
-                    </div>
-                    <div>
-                      <p style={{ margin: 0, fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>{item.label}</p>
-                      <p style={{ margin: '2px 0 0', fontSize: '12px', color: 'var(--text-secondary)' }}>{item.desc}</p>
-                    </div>
-                  </div>
-                  <Toggle checked={!!preferences.notifications[item.key]} onChange={() => toggleNotification(item.key)} />
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* ── B. Reminders ── */}
-          <section style={S.card}>
-            <div style={S.sectionHeader('#f59e0b')}>
-              <div style={{ ...S.sectionIcon, background: 'linear-gradient(135deg, #f59e0b, #fbbf24)', boxShadow: '0 6px 18px rgba(245,158,11,0.35)' }}>⏰</div>
-              <div>
-                <h2 style={S.sectionTitle}>Reminders</h2>
-                <p style={S.sectionSub}>Configure automated nudge behaviors for due dates</p>
-              </div>
-            </div>
-
-            <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {/* Enable toggle */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 18px', borderRadius: '14px', background: 'var(--bg-hover)', border: '1px solid var(--border)' }}>
-                <div>
-                  <p style={{ margin: 0, fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>Enable System Reminders</p>
-                  <p style={{ margin: '2px 0 0', fontSize: '12px', color: 'var(--text-secondary)' }}>Allow TaskMaster to send you reminder push notifications</p>
-                </div>
-                <Toggle checked={!!preferences.reminders.enabled} onChange={toggleReminder} />
-              </div>
-
-              {/* Offset selector */}
-              <div style={{
-                padding: '16px 18px', borderRadius: '14px', transition: 'all 0.3s',
-                background: preferences.reminders.enabled ? 'rgba(255,255,255,0.03)' : 'transparent',
-                border: `1px solid ${preferences.reminders.enabled ? 'rgba(255,255,255,0.06)' : 'transparent'}`,
-                opacity: preferences.reminders.enabled ? 1 : 0.4,
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
-                  <div>
-                    <p style={{ margin: 0, fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>Default Reminder Offset</p>
-                    <p style={{ margin: '2px 0 0', fontSize: '12px', color: 'var(--text-secondary)' }}>Fallback time before due date if none is chosen</p>
-                  </div>
-                  <div style={{ position: 'relative', flexShrink: 0 }}>
-                    <select
-                      value={preferences.reminders.defaultOffset}
-                      onChange={changeReminderOffset}
-                      disabled={!preferences.reminders.enabled}
-                      style={S.select}
-                    >
-                      <option value="due_time">At time of due date</option>
-                      <option value="10_min_before">10 minutes before</option>
-                      <option value="30_min_before">30 minutes before</option>
-                      <option value="1_hour_before">1 hour before</option>
-                      <option value="1_day_before">1 day before</option>
-                    </select>
-                    <div style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: 'var(--text-secondary)', fontSize: '11px' }}>▾</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* ── C. Appearance ── */}
+          {/* ── Appearance ── */}
           <section style={S.card}>
             <div style={S.sectionHeader('#38e078')}>
               <div style={{ ...S.sectionIcon, background: 'linear-gradient(135deg, #38e078, #63dba6)', boxShadow: '0 6px 18px rgba(56,224,120,0.3)' }}>✨</div>
@@ -263,28 +155,6 @@ const Settings = () => {
     </DashboardLayout>
   );
 };
-
-/* ── Toggle Component ── */
-const Toggle = ({ checked, onChange }) => (
-  <label style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', cursor: 'pointer', flexShrink: 0 }}>
-    <input type="checkbox" checked={checked} onChange={onChange} style={{ position: 'absolute', opacity: 0, width: 0, height: 0 }} />
-    <div style={{
-      width: '42px', height: '24px', borderRadius: '999px', padding: '3px',
-      background: checked ? 'var(--accent)' : 'var(--bg-hover)',
-      border: `1px solid ${checked ? 'var(--accent)' : 'var(--border)'}`,
-      transition: 'all 0.2s ease',
-      display: 'flex', alignItems: 'center',
-    }}>
-      <div style={{
-        width: '16px', height: '16px', borderRadius: '50%',
-        background: '#fff',
-        boxShadow: 'var(--shadow-sm)',
-        transform: checked ? 'translateX(18px)' : 'translateX(0)',
-        transition: 'transform 0.2s ease',
-      }} />
-    </div>
-  </label>
-);
 
 /* ── Style constants ── */
 const S = {
